@@ -1,140 +1,124 @@
 package fap.example.canvasone;
 
-import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Paint.Cap;
-import android.graphics.Paint.Join;
-import android.graphics.Paint.Style;
-import android.graphics.PathEffect;
-import android.graphics.RadialGradient;
-import android.graphics.RectF;
-import android.graphics.Shader;
-import android.graphics.SweepGradient;
-import android.graphics.Xfermode;
+import android.graphics.Paint.Align;
 import android.util.Log;
-
 
 public class CircularGenericGauge {
 
     private static final String TAG = "GenericGauge";
+   
+	private int positionX = 0;
+	private int positionY = 0;
+	private int dimension = 100;
+	private Materiale frameMaterial = Materiale.STEEL;
+	private Finitura frameEffect = Finitura.INNER_FRAME;
+	private DisplayBackGround displayBkgd = DisplayBackGround.IVORY;
 	
-	private int positionX;
-	private int positionY;
-	private int dimension;
-	private int Opacity;
-	private int colRed, colGreen, colBlue;
-	private int borderWidth;
 	
-	Paint pennello;
+	protected int opacity = Dash.OPACITY;
 	
+	CircularFrame frame;
+	GenericDial quadrante; 
+	GaugeAxis assi;
+
+	
+	// Constructor
 	public CircularGenericGauge() {
-    		Log.d(TAG, "Create! " );
+		this.buildCircularGenericGauge(10, 10, 100);
+	}
+	public CircularGenericGauge(int XPOS, int YPOS, int DIM) {
+		this.buildCircularGenericGauge(XPOS, YPOS, DIM);
+    	return;
+	}
 	
-		// TODO Auto-generated constructor stub
-	}
 
-	public void drawGauge(Canvas canvas) {
-		// TODO Auto-generated method stub
-		drawBorder(canvas);
+	// This method recalculate the geometry...
+	public void reformatGauge() {
+		frame.setDimension(dimension, dimension);
+		quadrante.reformatDial(frame);
 		
-	}
-
-	public void setContext(Context context) {
-		
-	}
-	public void setPosition(int x, int y) {
-		positionX = (x < 0 ? 0 : x);
-		positionY = (y < 0 ? 0 : y);
 		return;
 	}
-	public void getPosition(Integer x, Integer y) {
-		x = positionX;
-		y = positionY;
+	
+	
+	public void drawGauge(Canvas TELA) {
+		
+		Bitmap bmp = frame.drawFrame(false);
+		TELA.drawBitmap(bmp, positionX, positionY, null);
+		bmp = quadrante.drawDial(false);
+		TELA.drawBitmap(bmp, positionX, positionY, null);
+		
 		return;
 	}
-	public void setDimension(int raggio) {
-		dimension = (raggio < 0 ? 10 : raggio);
+
+	// Access & Setting Methods
+	public void setPosition(final int XPOS, final int YPOS){
+		positionX = (XPOS < 0)? 1 : XPOS;
+		positionY = (YPOS < 0)? 1 : YPOS;
+//		reformatGauge();
+		return;
 	}
-	public int getDimension() {
+	public void getPosition(int XPOS, int YPOS){
+		XPOS = positionX;
+		YPOS = positionY;
+		return;
+	}
+
+	public void setDimension(final int DIM){
+		dimension = DIM;
+		this.reformatGauge();
+		return;
+	}
+	public int getDimension(int DIM){
+		DIM = dimension;
 		return dimension;
 	}
-	public void setColor(int color) {
-		colRed = Color.red(color);
-		colGreen = Color.green(color);
-		colBlue = Color.blue(color);
-		Opacity = Color.alpha(color);
-		return;
-	}
-	public int getColor() {
-		return Color.argb(Opacity, colRed, colGreen, colBlue);
-	}
-
 	
-	private void drawBorder(Canvas canvas) {
-
-		float SHADOW_START_ANGLE = +135.0f;
-		float SHADOW_SWIP_ANGLE = 180.0f;
-		int BORDER_WIDTH = 20;
-		
-		PathEffect effect = new PathEffect();
-		float miter = 0.2f;
-		borderWidth = BORDER_WIDTH;
-		Xfermode xfermode = new Xfermode();
-		
-		RectF oval = new RectF();
-
-		pennello = new Paint();
-		pennello.setAlpha(Opacity);
-		pennello.setAntiAlias(true);
-		pennello.setDither(true);
-		pennello.setPathEffect(effect);
-		pennello.setStrokeCap(Cap.SQUARE);
-		pennello.setStrokeJoin(Join.ROUND);
-		pennello.setStrokeMiter(miter);
-		pennello.setStyle(Style.STROKE);
-		pennello.setXfermode(xfermode);
-
-		// start to draw
-		pennello.setStrokeWidth(1);
-
-		oval.bottom = positionY + dimension;
-		oval.top = positionY - dimension;
-		oval.left = positionX - dimension;
-		oval.right = positionX + dimension;
-		pennello.setARGB(Opacity, 255, 255, 255);
-		canvas.drawArc(oval, SHADOW_START_ANGLE, SHADOW_SWIP_ANGLE, false, pennello);
-		pennello.setARGB(Opacity, 64, 64, 64);
-		canvas.drawArc(oval, SHADOW_START_ANGLE+SHADOW_SWIP_ANGLE, SHADOW_SWIP_ANGLE, true, pennello);
-		
-	//	canvas.drawCircle(positionX, positionY, dimension-(borderWidth/2), pennello);
-		
-		oval.bottom = positionY + (dimension-borderWidth);
-		oval.top = positionY - (dimension-borderWidth);
-		oval.left = positionX - (dimension-borderWidth);
-		oval.right = positionX + (dimension-borderWidth);
-		pennello.setARGB(Opacity, 64, 64, 64);
-		canvas.drawArc(oval, SHADOW_START_ANGLE, SHADOW_SWIP_ANGLE, false, pennello);
-		pennello.setARGB(Opacity, 255, 255, 255);
-		canvas.drawArc(oval, SHADOW_START_ANGLE+SHADOW_SWIP_ANGLE, SHADOW_SWIP_ANGLE, true, pennello);
-		
-		pennello.setARGB(Opacity, colRed, colGreen, colBlue);
-		pennello.setStrokeWidth(borderWidth-2);
-		
-		RadialGradient gradient = new RadialGradient(positionX-100, positionY-100, 100, // dimension-(borderWidth/2), 
-				Color.argb(Opacity, colRed, colGreen, colBlue),
-				Color.argb(Opacity, colRed+20, colGreen+20, colBlue+20),
-				android.graphics.Shader.TileMode.REPEAT);
-		
-/*		Shader gradient = new SweepGradient(positionX, positionY-50,
-				Color.argb(Opacity, colRed, colGreen, colBlue),
-				Color.argb(Opacity, colRed+50, colGreen+50, colBlue+50));
-				*/
-		pennello.setShader(gradient);
-		canvas.drawCircle(positionX, positionY, dimension-(borderWidth/2), pennello);
-
+	public void setOpacity(final int OPA){
+		opacity = OPA;
+// force a redraw ??
 		return;
+	}
+	public int getOpacity(int OPA){
+		OPA = opacity;
+		return opacity;
+	}
+
+	// ----------------------------------
+	// Build the Gauge and instance the element
+	private void buildCircularGenericGauge(int XPOS, int YPOS, int DIM) {
+
+		// Setta la geometria
+		positionX = (XPOS < 0)? 1 : XPOS;
+		positionY = (YPOS < 0)? 1 : YPOS;
+		dimension = DIM;
+		
+		Log.d(TAG, "Create! " );
+		// ---- crea le istanze
+    	frame = new CircularFrame();
+    	frame.setMaterial(frameMaterial);
+    	frame.setEffect(frameEffect);
+    	
+    	quadrante = new GenericDial(frame, DisplayBackGround.IVORY);
+
+    	quadrante.setDialTitle("PROVA");
+    	// --
+    		quadrante.titolo.hasBorder = false;
+    		quadrante.titolo.setColors(Color.BLUE, Color.argb(50, 250, 205, 100));
+    		quadrante.titolo.setAlign(Align.CENTER);
+    	
+    	assi = new GaugeAxis();
+    	assi.addAxe(GaugeAxePosition.LEFT, "Pippo", "cm");
+		assi.addAxe(GaugeAxePosition.RIGHT, "Lillo", "Km");
+
+		this.reformatGauge();
+		
+    	return;
+		
+		
 	}
 	
 	

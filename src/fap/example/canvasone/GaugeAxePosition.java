@@ -1,0 +1,20 @@
+package fap.example.canvasone;
+
+public enum GaugeAxePosition {
+
+	CENTER,
+	TOP,
+	LEFT,
+	BOTTOM,
+	RIGHT,
+	TOPLEFT,
+	TOPRIGHT,
+	BOTTOMLEFT,
+	BOTTOMRIGHT,
+	INNERTOPLEFT,
+	INNERTOPRIGHT,
+	INNERBOTTOMLEFT,
+	INNERBOTTOMRIGHT,
+	NONE
+	
+}

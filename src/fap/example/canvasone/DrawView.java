@@ -41,21 +41,15 @@ public class DrawView extends View implements OnTouchListener {
 
         this.setOnTouchListener(this);
 
-        // pippo
         prepareEnvironment(context);
 
         CircularGenericGauge strum = new CircularGenericGauge();
     
-        strum.setPosition(250,250);
-        strum.setDimension(200);
-        strum.setColor(Color.argb(255, 125, 125, 125));
+        strum.setPosition(150,150);
+        strum.setDimension(500);
         
         gauges.add(strum);
         
-        /*
-        
-        
-  */      
         return;
 	}
 
@@ -65,23 +59,17 @@ public class DrawView extends View implements OnTouchListener {
 		// draw the backGround
     	drawBackground(canvas, bmpBack);
 
-//    	canvas.drawBitmap(bmpCock, 20, 50, paint);
-  //  	primo.drawGauge(canvas);
         for (CircularGenericGauge strum : gauges) {
             strum.drawGauge(canvas);
         }
     	
-    	
     	Log.d(TAG, "onDraw! " );
         for (Point point : points) {
             canvas.drawCircle(point.x, point.y, 5, paint);
-            // Log.d(TAG, "Painting: "+point);
         }
     }
 
     public boolean onTouch(View view, MotionEvent event) {
-        // if(event.getAction() != MotionEvent.ACTION_DOWN)
-        // return super.onTouchEvent(event);
         Point point = new Point();
         point.x = event.getX();
         point.y = event.getY();
@@ -92,16 +80,11 @@ public class DrawView extends View implements OnTouchListener {
     }
     
     private void drawBackground(Canvas canvas,  Bitmap bmp) {
-
-    	
     	canvas.drawBitmap(bmp, 0, 0, paint);
     	return;
-    	
     }
     
     private void prepareEnvironment(Context context) {
-
-    	
   	   WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
        Display display = wm.getDefaultDisplay();
        
@@ -142,7 +125,7 @@ public class DrawView extends View implements OnTouchListener {
        trasf.postScale(hScale, vScale);
        bmpCock  = Bitmap.createBitmap(bmpBack, 0, 0, iBitmapWidth, iBitmapHeigth, trasf, true);
        // Finally we have the background
-       bmpBack = bmpCock.createBitmap(bmpCock);
+       bmpBack = Bitmap.createBitmap(bmpCock);
        
        
        

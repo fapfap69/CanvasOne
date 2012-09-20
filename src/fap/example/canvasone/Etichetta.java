@@ -11,6 +11,7 @@ import android.graphics.Typeface;
 public class Etichetta {
 
 	public RectF area = new RectF();
+	public RectF textArea = new RectF();
 	public String contenuto = new String();
 	public int foreCol;
 	public int backCol;
@@ -55,11 +56,20 @@ public class Etichetta {
 	
 	// Questa funzione riorganizza il testo come font etc...
 	private void arrangeText() {
-
+		
 		boolean isLeft = (allineamento == Paint.Align.LEFT) ? true : false;
 		int pointer;
 		float size;
 		Rect etich = new Rect();
+		
+		if(hasBorder){
+			textArea.set(area.left + Dash.LABELBORDERDISTANCE,
+					area.top + Dash.LABELBORDERDISTANCE,
+					area.right - Dash.LABELBORDERDISTANCE,
+					area.bottom - Dash.LABELBORDERDISTANCE);
+		} else {
+			textArea.set(area);
+		}
 		
 		if(isAutoSize) {
 			size = Dash.LABELFONTSIZE;
@@ -67,11 +77,11 @@ public class Etichetta {
 			while(stayin) {
 				normografo.setTextSize(size);
 				normografo.getTextBounds(contenuto, 0, contenuto.length()-1, etich);
-				if(etich.width() > area.width()) {
+				if(etich.width() > textArea.width()) {
 					size = size - 1.0f;
 					stayin = size > 1.0f ? true : false;
 				} else {
-					if(etich.width() < (0.8 * area.width()) )
+					if(etich.width() < (0.8 * textArea.width()) )
 						size = size + 1.0f;
 					else
 						stayin = false;
@@ -81,7 +91,7 @@ public class Etichetta {
 			buffer = contenuto;
 		} else {
 			normografo.setTextSize(fontSize);
-			pointer = normografo.breakText(contenuto,isLeft,area.width(), null);
+			pointer = normografo.breakText(contenuto,isLeft,textArea.width(), null);
 			buffer = (isLeft) ? contenuto.substring(0,pointer-1) : contenuto.substring(contenuto.length()-pointer,contenuto.length()-1);  
 		}
 		return;
@@ -108,18 +118,17 @@ public class Etichetta {
 		normografo.setARGB(Color.alpha(foreCol), Color.red(foreCol), Color.green(foreCol), Color.blue(foreCol) );
 		normografo.setStyle(Paint.Style.STROKE);
 		
-		//if(hasBorder) tela.drawRect(area, normografo);
-		tela.drawRect(area, normografo);
+		if(hasBorder) tela.drawRect(area, normografo);
 		
 		switch(allineamento) {
 		case LEFT:
-			tela.drawText(buffer, area.left, area.bottom, normografo);
+			tela.drawText(buffer, textArea.left, textArea.bottom, normografo);
 			break;
 		case RIGHT:
-			tela.drawText(buffer, area.right, area.bottom, normografo);
+			tela.drawText(buffer, textArea.right, textArea.bottom, normografo);
 			break;
 		case CENTER:
-			tela.drawText(buffer, area.centerX(), area.bottom, normografo);
+			tela.drawText(buffer, textArea.centerX(), textArea.bottom, normografo);
 			break;
 		}
 		

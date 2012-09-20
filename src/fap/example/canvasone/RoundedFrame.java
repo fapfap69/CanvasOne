@@ -13,6 +13,11 @@ public class RoundedFrame extends GenericFrame{
 	
 	private boolean hasScrew;
 
+	public RoundedFrame(int WIDTH, int HEIGHT){
+		super(WIDTH, HEIGHT);
+	}
+	
+	
 	// Metodi
 	@Override
 	public Tipo getType() {

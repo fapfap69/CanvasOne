@@ -22,13 +22,14 @@ public class CircularGenericGauge {
 	
 	CircularFrame frame;
 	GenericDial quadrante; 
-	GaugeAxis assi;
+	GenericAxes assi;
 
+	GenericAxis asse;
 	
 	// Constructor
-	public CircularGenericGauge() {
-		this.buildCircularGenericGauge(10, 10, 100);
-	}
+//	public CircularGenericGauge() {
+//		this.buildCircularGenericGauge(10, 10, 100);
+//	}
 	public CircularGenericGauge(int XPOS, int YPOS, int DIM) {
 		this.buildCircularGenericGauge(XPOS, YPOS, DIM);
     	return;
@@ -49,6 +50,8 @@ public class CircularGenericGauge {
 		Bitmap bmp = frame.drawFrame(false);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
 		bmp = quadrante.drawDial(false);
+		TELA.drawBitmap(bmp, positionX, positionY, null);
+		bmp = asse.drawAxis(false);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
 		
 		return;
@@ -98,7 +101,7 @@ public class CircularGenericGauge {
 		
 		Log.d(TAG, "Create! " );
 		// ---- crea le istanze
-    	frame = new CircularFrame();
+    	frame = new CircularFrame(dimension,dimension);
     	frame.setMaterial(frameMaterial);
     	frame.setEffect(frameEffect);
     	
@@ -107,14 +110,18 @@ public class CircularGenericGauge {
     	quadrante.setDialTitle("PROVA");
     	// --
     		quadrante.titolo.hasBorder = false;
-    		quadrante.titolo.setColors(Color.BLUE, Color.argb(50, 250, 205, 100));
+    		quadrante.titolo.setColors(Color.BLACK, Color.argb(0, 250, 205, 100));
     		quadrante.titolo.setAlign(Align.CENTER);
     	
-    	assi = new GaugeAxis();
+  /*  	assi = new GenericAxes();
     	assi.addAxe(GaugeAxePosition.LEFT, "Pippo", "cm");
 		assi.addAxe(GaugeAxePosition.RIGHT, "Lillo", "Km");
-
-		this.reformatGauge();
+*/
+    	asse = new GenericAxis(frame, GaugeAxePosition.CENTER);
+    	asse.setUnit("m/sil");
+    	asse.setScale(115, 25, 180, 0, 10000, 1, 0.1f, Color.rgb(25, 80, 40), 25, true, true, false, false, true);	
+		
+    	this.reformatGauge();
 		
     	return;
 		

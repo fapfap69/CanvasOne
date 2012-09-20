@@ -2,11 +2,10 @@ package fap.example.canvasone;
 
 public class CircularFrame extends GenericFrame {
 
-	// Costruttore della classe
-	public CircularFrame() {
-    	
-	}
 	
+	public CircularFrame(int WIDTH, int HEIGHT){
+		 super(WIDTH, HEIGHT);
+	}
 	// Metodi 
 	
 	// Tipo

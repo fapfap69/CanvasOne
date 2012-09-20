@@ -43,10 +43,10 @@ public class DrawView extends View implements OnTouchListener {
 
         prepareEnvironment(context);
 
-        CircularGenericGauge strum = new CircularGenericGauge();
+        CircularGenericGauge strum = new CircularGenericGauge(150,150,500);
     
-        strum.setPosition(150,150);
-        strum.setDimension(500);
+//        strum.setPosition(150,150);
+//        strum.setDimension(500);
         
         gauges.add(strum);
         

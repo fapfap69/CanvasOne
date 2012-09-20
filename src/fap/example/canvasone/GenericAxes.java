@@ -4,13 +4,14 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.RectF;
 
-public class GaugeAxis {
+public class GenericAxes {
 
 	static final int MAXNUMAXIS = 6;
-	
-	
 	int numberOfAxis = 0;
-	Point[] axisCoords = new Point[MAXNUMAXIS];
+
+	
+	
+	private Point[] axisCoords = new Point[MAXNUMAXIS];
 	GaugeAxePosition[] axisTypes = new GaugeAxePosition[MAXNUMAXIS]; 
 	Etichetta[] titolo = new Etichetta[MAXNUMAXIS]; 
 	Etichetta[] unita = new Etichetta[MAXNUMAXIS]; 

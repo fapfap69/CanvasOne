@@ -7,6 +7,12 @@ public class RectangularFrame extends GenericFrame{
 
 	// Dimensione percentuale del bordo
 	private static final float ROUNDCORNER_PER = 0.025f;
+
+	
+	public RectangularFrame(int WIDTH, int HEIGHT){
+		super(WIDTH, HEIGHT);
+	}
+	
 	
 	// Metodi
 	@Override

@@ -15,6 +15,7 @@ public enum GaugeAxePosition {
 	INNERTOPRIGHT,
 	INNERBOTTOMLEFT,
 	INNERBOTTOMRIGHT,
+	CUSTOM,
 	NONE
 	
 }

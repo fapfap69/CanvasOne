@@ -139,7 +139,7 @@ public class GenericDial {
 		float alt = recDialSurface.height() * Dash.DIALTITLEEIGHT_PER;
 		
 		area.left = recDialSurface.centerX() - (larg / 2.0f);
-		area.right = recDialSurface.centerX() + larg;
+		area.right = recDialSurface.centerX() + (larg / 2.0f);
 		area.top = recDialSurface.centerY() - (2 * alt);  
 		area.bottom = recDialSurface.centerY() - alt;  
 		return(area);

@@ -67,10 +67,10 @@ public class GenericFrame {
 	boolean isInvalid = false;
 
 	// Costruttore della classe
-	public GenericFrame(){
-		createFrame(larghezza, altezza, materiale, finitura);
-		return ;
-	}
+//	public GenericFrame(){
+//		createFrame(larghezza, altezza, materiale, finitura);
+//		return ;
+//	}
 	public GenericFrame(final int WIDTH,final int HEIGHT){
 		createFrame(WIDTH, HEIGHT, materiale, finitura);
 		return ;

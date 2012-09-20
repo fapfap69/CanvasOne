@@ -35,6 +35,10 @@ public class ArcFrame extends CircularFrame{
 	private static RectF recHorBor = new RectF();
 	
 	
+	public ArcFrame(int WIDTH, int HEIGHT){
+		super(WIDTH, HEIGHT);
+	}
+	
 	// Metodi
 	
 	@Override

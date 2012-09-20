@@ -32,8 +32,8 @@ public class Dash {
 	// percentuale dell'ombra all'interno
 	static final float THICK_PER = 0.02f;
 
-	static final float DIALTITLEWIDTH_PER = 0.2f;
-	static final float DIALTITLEEIGHT_PER = 0.1f;
+	static final float DIALTITLEWIDTH_PER = 0.1f;
+	static final float DIALTITLEEIGHT_PER = 0.05f;
 	
 	
 	// Environment Variables

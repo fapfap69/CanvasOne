@@ -11,9 +11,9 @@ public class Dash {
 	static final int OPACITY = 254;
 	
 	// Colori
-	static final int OUTLINEGRAY = 68;
-	static final int SHADOWGRAY = 68;
-	static final int SHADOWOPACITY = 50;
+	static final int OUTLINEGRAY = 18;
+	static final int SHADOWGRAY = 48;
+	static final int SHADOWOPACITY = 30;
 	
 	// Files
 	static final String DEFAULT_BACKGROUND_NAME = "DefaultBackGround.png";
@@ -36,8 +36,8 @@ public class Dash {
 	static final float DIALTITLEEIGHT_PER = 0.1f;
 	static final float LABELBORDERDISTANCE = 2.0f;
 
-	static final float SCALEUNITWIDTH_PER = 0.2f;
-	static final float SCALEUNITEIGHT_PER = 0.1f;
+	static final float SCALEUNITWIDTH_PER = 0.1f;
+	static final float SCALEUNITEIGHT_PER = 0.05f;
 	static final float SCALEPRIMARYDIV_PER = 0.1f;
 	static final float SCALESECONDARYDIV_PER = 0.05f;
 	

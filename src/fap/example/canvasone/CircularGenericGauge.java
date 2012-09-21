@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint.Align;
+import android.graphics.RectF;
 import android.util.Log;
 
 public class CircularGenericGauge {
@@ -25,6 +26,7 @@ public class CircularGenericGauge {
 	GenericAxes assi;
 
 	GenericAxis asse;
+	GenericDisplay display;
 	
 	// Constructor
 //	public CircularGenericGauge() {
@@ -52,6 +54,8 @@ public class CircularGenericGauge {
 		bmp = quadrante.drawDial(false);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
 		bmp = asse.drawAxis(false);
+		TELA.drawBitmap(bmp, positionX, positionY, null);
+		bmp = display.drawDisplay(false);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
 		
 		return;
@@ -113,14 +117,24 @@ public class CircularGenericGauge {
     		quadrante.titolo.setColors(Color.BLACK, Color.argb(0, 250, 205, 100));
     		quadrante.titolo.setAlign(Align.CENTER);
     	
-  /*  	assi = new GenericAxes();
+/*
+    	assi = new GenericAxes();
     	assi.addAxe(GaugeAxePosition.LEFT, "Pippo", "cm");
 		assi.addAxe(GaugeAxePosition.RIGHT, "Lillo", "Km");
 */
     	asse = new GenericAxis(frame, GaugeAxePosition.CENTER);
     	asse.setUnit("m/sil");
-    	asse.setScale(115, 25, 180, 0, 10000, 1, 0.1f, Color.rgb(25, 80, 40), 25, true, true, false, false, true);	
+    	asse.setScale(300, 299, 180, 1, 12.9f, 1,0, Color.rgb(25, 80, 40), 25, true, true, false, false, false);	
 		
+    	RectF disp = new RectF();
+		disp.set(0, 0, 200, 180);
+		Point corn = new Point();
+		corn.x = 200;
+		corn.y = 200;
+		
+    	display = new GenericDisplay(frame, disp,corn);
+    	display.setDisplay(Color.BLUE, Color.RED, true, 4,0);
+
     	this.reformatGauge();
 		
     	return;

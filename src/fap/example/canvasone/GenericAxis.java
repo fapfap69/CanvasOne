@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.PathEffect;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Xfermode;
 import android.graphics.Bitmap.Config;
@@ -338,7 +339,7 @@ public class GenericAxis {
 		if(!isLogaritmic)
 			return((float)((double)(VALUE-scaleMin) * scaleScaleParam + Math.toRadians(startAngle)));
 		else
-			return((float)(Math.log10((double)(VALUE-scaleMin)) * scaleScaleParam + Math.toRadians(startAngle)));
+			return((float)(((VALUE==scaleMin) ? 0.0d : Math.log10((double)(VALUE-scaleMin)) ) * scaleScaleParam + Math.toRadians(startAngle)));
 		
 	}
 
@@ -347,7 +348,7 @@ public class GenericAxis {
 		// Draw Graduazioni
 		if(GRADUATION >-1){
 			float value = scaleMin;
-			float incre = 0.0f;
+			float incre = isLogaritmic ? (float)Math.log10(value) : 0.0f;
 			float x1,x2,y1,y2;
 			float disp = (isExternal ? scaleRadius * GRADUATIONDIMESION : -scaleRadius * GRADUATIONDIMESION );
 			double ang;
@@ -367,8 +368,8 @@ public class GenericAxis {
 						value = (float)Math.pow(10.0d, Math.floor(Math.log10(value))) * incre;
 						
 					} else {
-						incre++;
-						value = scaleMin + (float)Math.pow(10,incre*GRADUATION);
+						incre += GRADUATION;
+						value = (float)Math.pow(10,incre);
 					}
 				}
 			}
@@ -388,34 +389,48 @@ public class GenericAxis {
 		normografo.setStyle(Paint.Style.STROKE);
 	
 		float value = scaleMin;
-		float incre = 0.0f;
+		float incre = isLogaritmic ? (float)Math.log10(value) : 0.0f;
 		float x1,x2,y1,y2;
-		float disp = (isExternal ? scaleRadius *  Dash.SCALEPRIMARYDIV_PER + scaleFontSize : -(scaleRadius *  Dash.SCALEPRIMARYDIV_PER + scaleFontSize) );
+		float disp = (isExternal ? scaleRadius *  Dash.SCALEPRIMARYDIV_PER + scaleFontSize/2.0f : -(scaleRadius *  Dash.SCALEPRIMARYDIV_PER + scaleFontSize/2.0f) );
 		double ang;
-
+		Rect bound = new Rect();
 		String buffer = new String();
 		
 		while(value <= scaleMax){
 			ang = convertValueToAngle(value);
+
+			buffer = String.format("%.0f",value); // scaleLabelFormat, value);
+			normografo.getTextBounds(buffer, 0, buffer.length()-1, bound);
 			x2 = (float) ((scaleRadius + disp) * Math.cos(ang)) + axisPosition.x;
 			y2 = (float) ((scaleRadius + disp) * Math.sin(ang)) + axisPosition.y;
-
-			buffer = String.format(scaleLabelFormat, value); 
-			
-			tela.rotate( (float)Math.toDegrees(Math.PI/2.0d + ang), x2 , y2);
-			tela.drawText(buffer, x2, y2, normografo);
-			tela.rotate( -(float)Math.toDegrees(Math.PI/2.0d + ang), x2 , y2);
-						
+			if(isRotated) {	
+				tela.rotate( (float)Math.toDegrees(Math.PI/2.0d + ang), x2 , y2);
+				tela.drawText(buffer, x2, y2, normografo);
+				tela.rotate( -(float)Math.toDegrees(Math.PI/2.0d + ang), x2 , y2);
+			} else {
+			//	x2 = x2 - bound.centerX();
+				y2 = y2 + bound.height() / 2.0f;
+				tela.drawText(buffer, x2, y2, normografo);
+			}
 			if(!isLogaritmic){
 				value = scaleMin + scalePriDiv * ++incre;
 			} else {
-				incre++;
-				value = scaleMin + (float)Math.pow(10,incre * scalePriDiv);
+				incre += scalePriDiv;
+				value = (float)Math.pow(10,incre);
 			}
 		}
-	//	tela.rotate( 0, displayArea.centerX() , + displayArea.centerY());
-		
 		return;
 	}	
-	
+
+	private void drawAcross(Canvas tela, float x2, float y2, float dim, Paint matita, boolean pos) {
+		if(pos) {
+			tela.drawLine(x2-dim,y2,x2+dim,y2,matita);
+			tela.drawLine(x2,y2-dim,x2,y2+dim,matita);
+		} else {
+			tela.drawLine(x2-dim,y2-dim,x2+dim,y2+dim,matita);
+			tela.drawLine(x2+dim,y2-dim,x2-dim,y2+dim,matita);
+		}
+		return;
+	}
+
 }

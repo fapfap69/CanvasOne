@@ -24,6 +24,8 @@ public class GenericDisplay {
 	private Canvas tela;
 	private static Bitmap displayImage;
 	private static Paint matita;
+	private static Paint ledOn;
+	private static Paint ledOff;
 	private static Paint pennello;
 	
 	// Grafica
@@ -32,16 +34,14 @@ public class GenericDisplay {
 	private RectF displayArea = new RectF();
 	private Point displayPosition = new Point();
 	private RectF recDigits;
-	private int digitWidth;
-	private int digitHeight;
 	
 	private int foreColor = Color.WHITE;
 	private int backColor = Color.BLACK;
+	private int borderColor = Color.GRAY;
+	
 	private int numOfDigits = 3;
 	private int numOfDecimal = 0;
 
-	private int scaleFontSize = 20;
-	
     private Path pathOuterDisplay;
     private Path pathShadowDisplay;
     private Path pathInnerDisplay;
@@ -50,7 +50,9 @@ public class GenericDisplay {
 	
 	// Dinamica
 	private float inertia = 0.0f;
-	
+
+	// Visualizzazione 
+	private SevenSegment cifre;
 	
 	// Costruttore x tipo 
 	public GenericDisplay(final GenericFrame FRAME, final RectF DISPLAYAREA) {
@@ -58,26 +60,54 @@ public class GenericDisplay {
 		displayArea.set(DISPLAYAREA);
 		displayPosition.x = displayBitmap.centerX();
 		displayPosition.y = displayBitmap.centerY();
+		this.buildDisplay();
 	}
+	
 	public GenericDisplay(final GenericFrame FRAME, final RectF DISPLAYAREA, final Point DISPLAYPOSITION) {
 		displayBitmap.set(FRAME.recBoundary);
-		displayArea.set(FRAME.recInnerFrame);
+		displayArea.set(DISPLAYAREA);
 		displayPosition.x = DISPLAYPOSITION.x;
 		displayPosition.y = DISPLAYPOSITION.y;
+		this.buildDisplay();
 	}
 
+	public GenericDisplay(final CircularFrame FRAME, final int XPOSITION, final int YPOSITION, final int WIDTH, final int HEIGHT) {
+		displayBitmap.set(FRAME.recBoundary);
+		displayArea.set(0,0,WIDTH-1,HEIGHT-1);
+		displayPosition.x = XPOSITION;
+		displayPosition.y = YPOSITION;
+		this.buildDisplay();
+	}
 	// Metodi ..................
-	public void setDisplay(final int FORECOLOR, final int BACKCOLOR, final boolean HASBORDER, final int DIGITS, final int DECIMAL){
+	public void setDisplay(final int FORECOLOR, final int BACKCOLOR, final boolean HASBORDER, final int BORDERCOLOR, final int DIGITS, final int DECIMAL){
 		foreColor = FORECOLOR;
 		backColor = BACKCOLOR;
+		borderColor = BORDERCOLOR;
 		hasBorder = HASBORDER;
 		numOfDigits = DIGITS;
 		numOfDecimal = DECIMAL;
-		
+		this.buildDisplay();
+		isInvalid = true;
 		return;
 	}
 	
-	public Bitmap drawDisplay(boolean FORCED){
+	// Setting ...
+	public void setValue(float VALUE) {
+		
+		return;
+	}
+
+
+	public Bitmap drawDisplay(boolean FORCED, float VALUE){
+		String buffer = String.format("%"+ numOfDigits + "." + numOfDecimal+ "f", VALUE);
+		return(this.drawDisplay(FORCED, buffer));
+	}
+	public Bitmap drawDisplay(boolean FORCED, int VALUE){
+		String buffer = String.format("%"+ numOfDigits + "d", VALUE);
+		return(this.drawDisplay(FORCED, buffer));
+	}
+	
+	public Bitmap drawDisplay(boolean FORCED, String VALUE){
 
 		if(!isInvalid && !FORCED) {
 			return(displayImage);
@@ -98,11 +128,16 @@ public class GenericDisplay {
 	    }
 
 	    // Disegna lo sfondo del display
+    	pennello.setColor(backColor);
+    	pennello.setAlpha(opacity);
     	tela.drawPath(pathInnerDisplay, pennello);
     	
     	// Disegna l'ombra
     	pennello.setARGB(Dash.SHADOWOPACITY, Dash.SHADOWGRAY, Dash.SHADOWGRAY, Dash.SHADOWGRAY);
     	tela.drawPath(pathShadowDisplay, pennello);
+    	
+    	VALUE = String.format("%"+ numOfDigits + "s", VALUE);
+    	cifre.drawValue(tela, ledOn, ledOff, VALUE);
     	
 		return(displayImage);
 	}
@@ -114,7 +149,7 @@ public class GenericDisplay {
         // Crea i pennelli
 		PathEffect effect = new PathEffect();
 		Xfermode xfermode = new Xfermode();
-		float miter = 0.1f;
+		float miter = 1.0f;
         matita = new Paint();
         matita.setAntiAlias(true);
         matita.setDither(true);
@@ -124,8 +159,35 @@ public class GenericDisplay {
         matita.setStrokeMiter(miter);
         matita.setStyle(Style.STROKE);
         matita.setXfermode(xfermode);
-        matita.setColor(foreColor);
-		
+        matita.setColor(borderColor);
+
+        ledOn = new Paint();
+        ledOn.setAntiAlias(true);
+        ledOn.setDither(true);
+        ledOn.setPathEffect(effect);
+        ledOn.setStrokeCap(Cap.SQUARE);
+        ledOn.setStrokeJoin(Join.ROUND);
+        ledOn.setStrokeMiter(miter);
+        ledOn.setStyle(Style.FILL_AND_STROKE);
+        ledOn.setXfermode(xfermode);
+        ledOn.setColor(foreColor);
+        
+        ledOff = new Paint();
+        ledOff.setAntiAlias(true);
+        ledOff.setDither(true);
+        ledOff.setPathEffect(effect);
+        ledOff.setStrokeCap(Cap.SQUARE);
+        ledOff.setStrokeJoin(Join.ROUND);
+        ledOff.setStrokeMiter(miter);
+        ledOff.setStyle(Style.FILL_AND_STROKE);
+        ledOff.setXfermode(xfermode);
+        float[] hsv = new float[3];
+        Color.colorToHSV(foreColor, hsv);
+        hsv[2] = hsv[2] / 3.0f;
+        int alpha = Color.alpha(foreColor);
+        ledOff.setColor(Color.HSVToColor(hsv));
+        ledOff.setAlpha(alpha);
+        
         pennello = new Paint();
         pennello.setAntiAlias(true);
         pennello.setDither(true);
@@ -133,9 +195,10 @@ public class GenericDisplay {
         pennello.setStrokeCap(Cap.SQUARE);
         pennello.setStrokeJoin(Join.ROUND);
         pennello.setStrokeMiter(miter);
-        pennello.setStyle(Style.FILL);
+        pennello.setStyle(Style.FILL_AND_STROKE);
         pennello.setXfermode(xfermode);
         pennello.setColor(backColor);
+        pennello.setAlpha(Color.alpha(backColor));
 		
 
         float lar, alt, sh;
@@ -146,10 +209,12 @@ public class GenericDisplay {
         ri = displayPosition.x + (lar/2.0f);
         to = displayPosition.y - (alt/2.0f);
         bo = displayPosition.y + (alt/2.0f);
-        sh = Dash.SHADOW_PER * lar;
+        sh = Dash.SHADOW_PER * lar * 4;
         
         pathOuterDisplay = new Path();
-        pathOuterDisplay.addRect(le, to, ri, bo, Direction.CW);
+        RectF appo = new RectF();
+        appo.set(le, to, ri, bo);
+        pathOuterDisplay.addRoundRect(appo, 4, 4, Direction.CW);
 
         pathShadowDisplay = new Path();
         pathShadowDisplay.moveTo(le+1, to+1);
@@ -161,27 +226,17 @@ public class GenericDisplay {
         pathShadowDisplay.close();
         
         pathInnerDisplay = new Path();
-        pathOuterDisplay.addRect(le+2, to+2, ri-1, bo-1, Direction.CW);
+        appo.set(le+1, to+1, ri-1, bo-1);        
+        pathInnerDisplay.addRoundRect(appo,  4,4,Direction.CW);
 	
-        // Digit geometry
-        int nDigits = numOfDigits + (numOfDecimal>0 ? numOfDecimal : 0);
-        float digw = lar / (float)nDigits;
-        float digh;
-        
-        if(alt / digw < 1.68f) { digw = alt / 1.68f; digh = digw * 1.68f; }
-        else { digh = digw * 1.68f; };  
-        
-        digitWidth = (int)digw;
-        digitHeight = (int)digh;
-        
         recDigits = new RectF();
-        recDigits.left = le + (lar - digw * nDigits) / 2.0f;
-        recDigits.top = to + (alt - digh) / 2.0f;
-        recDigits.right = le + digw * nDigits;
-        recDigits.bottom = to + digh;
-
+        recDigits.set(le+4, to+4, ri-4, bo-4);
+        
+        cifre = new SevenSegment(recDigits,numOfDigits,numOfDecimal);
+        
         return;
 	}
+
 	
 	
 	

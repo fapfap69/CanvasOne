@@ -46,8 +46,10 @@ public class CircularGenericGauge {
 		return;
 	}
 	
-	
+	static int Value = 0;
 	public void drawGauge(Canvas TELA) {
+	
+		String DispBuffer;
 		
 		Bitmap bmp = frame.drawFrame(false);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
@@ -55,7 +57,8 @@ public class CircularGenericGauge {
 		TELA.drawBitmap(bmp, positionX, positionY, null);
 		bmp = asse.drawAxis(false);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
-		bmp = display.drawDisplay(false);
+
+		bmp = display.drawDisplay(true, Value++);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
 		
 		return;
@@ -110,30 +113,19 @@ public class CircularGenericGauge {
     	frame.setEffect(frameEffect);
     	
     	quadrante = new GenericDial(frame, DisplayBackGround.IVORY);
-
     	quadrante.setDialTitle("PROVA");
+   		quadrante.titolo.hasBorder = false;
+   		quadrante.titolo.setColors(Color.BLACK, Color.argb(0, 250, 205, 100));
+   		quadrante.titolo.setAlign(Align.CENTER);
+
     	// --
-    		quadrante.titolo.hasBorder = false;
-    		quadrante.titolo.setColors(Color.BLACK, Color.argb(0, 250, 205, 100));
-    		quadrante.titolo.setAlign(Align.CENTER);
-    	
-/*
-    	assi = new GenericAxes();
-    	assi.addAxe(GaugeAxePosition.LEFT, "Pippo", "cm");
-		assi.addAxe(GaugeAxePosition.RIGHT, "Lillo", "Km");
-*/
     	asse = new GenericAxis(frame, GaugeAxePosition.CENTER);
     	asse.setUnit("m/sil");
     	asse.setScale(300, 299, 180, 1, 12.9f, 1,0, Color.rgb(25, 80, 40), 25, true, true, false, false, false);	
 		
-    	RectF disp = new RectF();
-		disp.set(0, 0, 200, 180);
-		Point corn = new Point();
-		corn.x = 200;
-		corn.y = 200;
-		
-    	display = new GenericDisplay(frame, disp,corn);
-    	display.setDisplay(Color.BLUE, Color.RED, true, 4,0);
+    	// --
+    	display = new GenericDisplay(frame, 250, 320, 100, 50);
+    	display.setDisplay(Color.RED, Color.BLACK, true, Color.GRAY, 4, 0);
 
     	this.reformatGauge();
 		

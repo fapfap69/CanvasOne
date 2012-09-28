@@ -26,7 +26,10 @@ public class CircularGenericGauge {
 	GenericAxes assi;
 
 	GenericAxis asse;
+	GenericAxis asse2;
+	
 	GenericDisplay display;
+
 	
 	// Constructor
 //	public CircularGenericGauge() {
@@ -47,7 +50,7 @@ public class CircularGenericGauge {
 	}
 	
 	static int Value = 0;
-	public void drawGauge(Canvas TELA) {
+	public void drawGauge(Canvas TELA, float ValDisplay) {
 	
 		String DispBuffer;
 		
@@ -55,10 +58,18 @@ public class CircularGenericGauge {
 		TELA.drawBitmap(bmp, positionX, positionY, null);
 		bmp = quadrante.drawDial(false);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
+
 		bmp = asse.drawAxis(false);
+		TELA.drawBitmap(bmp, positionX, positionY, null);
+		bmp = asse2.drawAxis(false);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
 
 		bmp = display.drawDisplay(true, Value++);
+		TELA.drawBitmap(bmp, positionX, positionY, null);
+		
+		bmp = asse.drawIndicator(true, ValDisplay);
+		TELA.drawBitmap(bmp, positionX, positionY, null);
+		bmp = asse2.drawIndicator(true, ValDisplay);
 		TELA.drawBitmap(bmp, positionX, positionY, null);
 		
 		return;
@@ -119,10 +130,21 @@ public class CircularGenericGauge {
    		quadrante.titolo.setAlign(Align.CENTER);
 
     	// --
-    	asse = new GenericAxis(frame, GaugeAxePosition.CENTER);
+    	asse = new GenericAxis(frame, GaugeAxePosition.LEFT);
     	asse.setUnit("m/sil");
-    	asse.setScale(300, 299, 180, 1, 12.9f, 1,0, Color.rgb(25, 80, 40), 25, true, true, false, false, false);	
-		
+    	float[] thi = {1.0f, 0.5f, 0.1f};
+    	asse.setScale(300.0f, 60.0f, 100.0f, 0.0f, 10.0f, thi, Color.rgb(25, 80, 40), 25, true, true, false, false, false);	
+//    	asse.setPointer(PointerType.HAND2, Material.Type.BRASS);
+    	asse.setPointer(PointerType.NEEDLE4, Material.Type.LINEARVERTICAL, Color.argb(opacity, 00, 0, 0), Color.argb(opacity, 200, 200, 200), (int)(DIM/6.0f) );
+    	
+
+    	asse2 = new GenericAxis(frame, GaugeAxePosition.RIGHT);
+    	asse2.setUnit("m/sil");
+    	asse2.setScale(120.0f, 240.0f, 100.0f, 1.0f, 3.0f, thi, Color.rgb(25, 80, 40), 25, true, true, false, false, false);	
+//    	asse.setPointer(PointerType.HAND2, Material.Type.BRASS);
+    	asse2.setPointer(PointerType.NEEDLE4, Material.Type.LINEARVERTICAL, Color.argb(opacity, 00, 0, 0), Color.argb(opacity, 200, 200, 200), (int)(DIM/6.0f) );
+
+    	
     	// --
     	display = new GenericDisplay(frame, 250, 320, 100, 50);
     	display.setDisplay(Color.RED, Color.BLACK, true, Color.GRAY, 4, 0);

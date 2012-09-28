@@ -132,12 +132,14 @@ public class GenericDisplay {
     	pennello.setAlpha(opacity);
     	tela.drawPath(pathInnerDisplay, pennello);
     	
+
+    	// Disegna il valore
+    	VALUE = String.format("%"+ numOfDigits + "s", VALUE);
+    	cifre.drawValue(tela, ledOn, ledOff, VALUE);
+    	
     	// Disegna l'ombra
     	pennello.setARGB(Dash.SHADOWOPACITY, Dash.SHADOWGRAY, Dash.SHADOWGRAY, Dash.SHADOWGRAY);
     	tela.drawPath(pathShadowDisplay, pennello);
-    	
-    	VALUE = String.format("%"+ numOfDigits + "s", VALUE);
-    	cifre.drawValue(tela, ledOn, ledOff, VALUE);
     	
 		return(displayImage);
 	}

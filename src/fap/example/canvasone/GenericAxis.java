@@ -14,6 +14,7 @@ import android.graphics.Paint.Cap;
 import android.graphics.Paint.Join;
 import android.graphics.Paint.Style;
 import android.graphics.Region.Op;
+import android.util.Log;
 
 public class GenericAxis {
 
@@ -22,8 +23,9 @@ public class GenericAxis {
 
 	// Contesto
 	private Canvas tela;
-	private static Bitmap axisImage;
-	private static Paint matita;
+	private Bitmap axisImage;
+	private Paint matita;
+	private Paint pennello;
 	
 	// Scala
 	private Etichetta unita; 
@@ -33,8 +35,7 @@ public class GenericAxis {
 	
 	private float scaleMin = 0.0f;
 	private float scaleMax = 100.0f;
-	private float scalePriDiv = 10.0f;
-	private float scaleSecDiv = 1.0f;
+	private float[] scaleDiv = {10.0f, 5.0f, 1.0f, 0.0f , 0.0f};
 	
 	private float scaleRadius = 10.0f;
 	
@@ -55,13 +56,17 @@ public class GenericAxis {
 	private GaugeAxePosition axisPositionType;
 	private boolean hasLinea = false;
 	private boolean hasEndMarks = false;
-	private Point axisPosition = new Point();
+	public Point axisPosition = new Point();
 	private RectF displayBitmap = new RectF();
 	private RectF displayArea = new RectF();
 	private int scaleColor = Color.BLACK;
 	private int scaleFontSize = 10;
 	
 	private boolean isInvalid = false;
+
+	// Lancetta
+	Indicatore lancetta;
+
 	
 	// Dinamica
 	private float inertia = 1.0f;
@@ -85,7 +90,7 @@ public class GenericAxis {
 
 	// setta la scala
 	public void setScale(float STARTANGLE, float ENDANGLE, float RADIUS, float MIN, float MAX, 
-						 float PRIMDIVISION, float SECODIVISION, int COLOR, int FONTSIZE,
+						 float[] DIVISIONS, int COLOR, int FONTSIZE,
 						 boolean HASLINEA, boolean HASLABEL,
 						 boolean ISEXTERNAL, boolean ISROTATED, boolean ISLOGARITMIC){
 		
@@ -95,10 +100,12 @@ public class GenericAxis {
 		scaleRadius = RADIUS;
 		scaleMin = Math.min(MAX, MIN);
 		scaleMax = Math.max(MIN, MAX);
-		
-		scalePriDiv = (PRIMDIVISION <= 0) ? -1 : PRIMDIVISION;
-		scaleSecDiv = (SECODIVISION <= 0) ? -1 : SECODIVISION;
-				
+
+	    scaleDiv = new float[DIVISIONS.length];
+	    for(int idx = 0; idx < DIVISIONS.length; ++idx ) {
+	    	scaleDiv[idx] = DIVISIONS[idx];
+	    }
+	    
 		hasLinea = HASLINEA;
 		isExternal = ISEXTERNAL;
 		hasLabels = HASLABEL;
@@ -125,12 +132,38 @@ public class GenericAxis {
 		return;
 	}
 	
+	public void setPointer(PointerType POINTER_TYPE, Material.Type MATERIAL_TYPE ) {
+		lancetta = new Indicatore(POINTER_TYPE, scaleRadius, MATERIAL_TYPE, Color.argb(opacity, 0, 0, 0), Color.argb(opacity, 0, 0, 0) );
+		return;
+	}
+	public void setPointer(PointerType POINTER_TYPE, int COLOR1, int COLOR2) {
+		lancetta = new Indicatore(POINTER_TYPE, scaleRadius, Material.Type.LINEARORIZONTAL, COLOR1, COLOR2);
+		return;
+	}
+	public void setPointer(PointerType POINTER_TYPE, Material.Type MATERIAL_TYPE, int COLOR1, int COLOR2 ) {
+		lancetta = new Indicatore(POINTER_TYPE, scaleRadius, MATERIAL_TYPE, COLOR1, COLOR2);
+		return;
+	}
+
+	public void setPointer(PointerType POINTER_TYPE, Material.Type MATERIAL_TYPE, float RADIUS) {
+		lancetta = new Indicatore(POINTER_TYPE, RADIUS, MATERIAL_TYPE, Color.argb(opacity, 0, 0, 0), Color.argb(opacity, 0, 0, 0) );
+		return;
+	}
+	public void setPointer(PointerType POINTER_TYPE, int COLOR1, int COLOR2, float RADIUS) {
+		lancetta = new Indicatore(POINTER_TYPE, RADIUS, Material.Type.LINEARORIZONTAL, COLOR1, COLOR2);
+		return;
+	}
+	public void setPointer(PointerType POINTER_TYPE, Material.Type MATERIAL_TYPE, int COLOR1, int COLOR2, float RADIUS ) {
+		lancetta = new Indicatore(POINTER_TYPE, RADIUS, MATERIAL_TYPE, COLOR1, COLOR2);
+		return;
+	}
+	
 	
 	// Calcula e setta
 	private void formatAxis(){
 		
 		// Parametri di scala
-		double arcRad = (double)(360 + endAngle - startAngle) * (Math.PI / 180.0d);
+		double arcRad = (double)(( 360 + endAngle - startAngle) % 360 ) * (Math.PI / 180.0d);
 		double esc = isLogaritmic ? (Math.log10((double)scaleMax)-Math.log10((double)scaleMin)) : (double)(scaleMax - scaleMin);
 		scaleScaleParam = (float)(arcRad / esc);
 		
@@ -149,6 +182,17 @@ public class GenericAxis {
         matita.setXfermode(xfermode);
         matita.setARGB((int)((float)Color.alpha(scaleColor) * ((float)opacity / 255.0f)), Color.red(scaleColor), Color.green(scaleColor), Color.blue(scaleColor));
 
+        pennello = new Paint();
+        pennello.setAntiAlias(true);
+        pennello.setDither(true);
+        pennello.setPathEffect(effect);
+        pennello.setStrokeCap(Cap.SQUARE);
+        pennello.setStrokeJoin(Join.ROUND);
+        pennello.setStrokeMiter(miter);
+        pennello.setStyle(Style.FILL_AND_STROKE);
+        pennello.setXfermode(xfermode);
+        pennello.setARGB((int)((float)Color.alpha(scaleColor) * ((float)opacity / 255.0f)), Color.red(scaleColor), Color.green(scaleColor), Color.blue(scaleColor));
+        
         this.isInvalid = true;
         
         return;
@@ -187,13 +231,17 @@ public class GenericAxis {
 			RectF arco = new RectF();
 			tela.clipRect(displayArea, Op.REPLACE);			
 			arco.set(axisPosition.x - scaleRadius, axisPosition.y - scaleRadius, axisPosition.x + scaleRadius, axisPosition.y + scaleRadius);
-			tela.drawArc(arco, startAngle, 360 + endAngle-startAngle, false, matita);
+			tela.drawArc(arco, startAngle, (360 + endAngle-startAngle) % 360 , false, matita);
 		}
 		// Draw Graduazioni 
 		tela.clipRect(displayArea, Op.REPLACE);
-		drawScaleTick(tela, 1, scalePriDiv, Dash.SCALEPRIMARYDIV_PER);
-		drawScaleTick(tela, 2, scaleSecDiv, Dash.SCALESECONDARYDIV_PER);
-
+		int i=0;
+		while(i<scaleDiv.length){
+			drawScaleTick(tela, i+1 , scaleDiv[i], Dash.SCALEPRIMARYDIV_PER / (i*0.5f+1) );
+			i++;
+		}
+		tela.clipRect(displayArea, Op.REPLACE);
+		drawScaleExtremes(tela);
 		
     	// Draw the Unit
     	if(unita != null) {
@@ -211,6 +259,40 @@ public class GenericAxis {
         
 	}
 	
+	// ------------
+	public Bitmap drawIndicator(boolean forceRedraw, float valDisplay) {
+		
+		// Crea la nuova bitmap
+		Bitmap indicatorImage = Bitmap.createBitmap((int)displayBitmap.width() , (int)displayBitmap.height(), Config.ARGB_8888);
+
+		// Converte il valore del visualizzatore nell'angolo corispondente
+		float fAngle;
+		if(valDisplay > scaleMax) fAngle = endAngle + 2.0f;
+		else if(valDisplay < scaleMin) fAngle = startAngle - 2.0f;
+		else fAngle = valDisplay * ((360 + endAngle - startAngle+1) % 360) / (scaleMax-scaleMin+1) + startAngle;
+	Log.d("PIPPO", fAngle + "::" + valDisplay +"  "+ startAngle +"  "+ endAngle +"  "+ scaleMax +"  "+ scaleMin );	
+		// ed il contesto su cui disegnare
+	    tela = new Canvas(indicatorImage);
+		tela.rotate(fAngle+90.0f, axisPosition.x, axisPosition.y);
+		
+		// calcola lo shift
+		float left,top;
+		left = axisPosition.x - lancetta.axis.x;
+		top = axisPosition.y - lancetta.axis.y;
+		// e lo spostamento dell'ombra
+		float difx = (float)(8.0d * Math.cos(Math.toRadians(fAngle -45)));
+		float dify = (float)(8.0d * Math.sin(Math.toRadians(fAngle -225)));
+
+		tela.drawBitmap(lancetta.getPointerShadow(), left+difx, top+dify, pennello);
+		tela.drawBitmap(lancetta.getPointer(), left, top, pennello);
+		
+		return(indicatorImage);
+		
+	}
+	
+	
+	
+	
 	// routine accessorie
 	private boolean axisPositionBuild(final GaugeAxePosition POSITIONTYPE, final float X, final float Y, Point POSITION){
 
@@ -225,35 +307,35 @@ public class GenericAxis {
 			angle = 0.0d;
 			break;
 		case TOP:
-			radius = displayArea.width() * 0.35f;
+			radius = displayArea.width() * 0.40f;
 			angle = Math.PI * 0.50d;
 			break;
 		case BOTTOM:
-			radius = displayArea.width() * 0.35f;
+			radius = displayArea.width() * 0.40f;
 			angle = Math.PI * 1.5d;
 			break;
 		case LEFT:
-			radius = displayArea.width() * 0.35f;
+			radius = displayArea.width() * 0.40f;
 			angle = Math.PI;
 			break;
 		case RIGHT:
-			radius = displayArea.width() * 0.35f;
+			radius = displayArea.width() * 0.40f;
 			angle = 0.0d;
 			break;
 		case TOPLEFT:
-			radius = displayArea.width() * 0.35f;
+			radius = displayArea.width() * 0.40f;
 			angle = Math.PI * 0.75d;
 			break;
 		case BOTTOMLEFT:
-			radius = displayArea.width() * 0.35f;
+			radius = displayArea.width() * 0.40f;
 			angle = Math.PI * 1.25d;
 			break;
 		case TOPRIGHT:
-			radius = displayArea.width() * 0.35f;
+			radius = displayArea.width() * 0.40f;
 			angle = Math.PI * 0.25d;
 			break;
 		case BOTTOMRIGHT:
-			radius = displayArea.width() * 0.35f;
+			radius = displayArea.width() * 0.40f;
 			angle = Math.PI * 1.75d;
 			break;
 		case INNERTOPLEFT:
@@ -376,6 +458,18 @@ public class GenericAxis {
 		}
 		return;
 	}
+
+	private void drawScaleExtremes(Canvas tela){
+		
+		float x1,y1;
+		x1 = (scaleRadius*0.80f) * (float)Math.cos(Math.toRadians(startAngle-5.0f)) + axisPosition.x;
+		y1 = (scaleRadius*0.80f) * (float)Math.sin(Math.toRadians(startAngle-5.0f)) + axisPosition.y;
+		tela.drawCircle(x1, y1, scaleRadius*0.02f, pennello);
+		x1 = (scaleRadius*0.80f) * (float)Math.cos(Math.toRadians(endAngle+5.0f)) + axisPosition.x;
+		y1 = (scaleRadius*0.80f) * (float)Math.sin(Math.toRadians(endAngle+5.0f)) + axisPosition.y;
+		tela.drawCircle(x1, y1, scaleRadius*0.02f, pennello);
+		return;
+	}
 	
 	private void drawScaleLabels(Canvas tela){
 		
@@ -409,13 +503,13 @@ public class GenericAxis {
 				tela.rotate( -(float)Math.toDegrees(Math.PI/2.0d + ang), x2 , y2);
 			} else {
 			//	x2 = x2 - bound.centerX();
-				y2 = y2 + bound.height() / 2.0f;
+				y2 = y2 + bound.height();// / 2.0f;
 				tela.drawText(buffer, x2, y2, normografo);
 			}
 			if(!isLogaritmic){
-				value = scaleMin + scalePriDiv * ++incre;
+				value = scaleMin + scaleDiv[0] * ++incre;
 			} else {
-				incre += scalePriDiv;
+				incre += scaleDiv[0];
 				value = (float)Math.pow(10,incre);
 			}
 		}

@@ -24,6 +24,8 @@ public class DrawView extends View implements OnTouchListener {
 	private Bitmap bmpBack;
     private Bitmap bmpCock;
     
+    private float ValAng = 0;
+   
     public int winWidth;
     public int winHeight;
     
@@ -60,7 +62,8 @@ public class DrawView extends View implements OnTouchListener {
     	drawBackground(canvas, bmpBack);
 
         for (CircularGenericGauge strum : gauges) {
-            strum.drawGauge(canvas);
+        	ValAng += 5;
+            strum.drawGauge(canvas, ++ValAng);
         }
     	
     	Log.d(TAG, "onDraw! " );
